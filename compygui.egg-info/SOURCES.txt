@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+compygui/__init__.py
+compygui/compygui.py
+compygui.egg-info/PKG-INFO
+compygui.egg-info/SOURCES.txt
+compygui.egg-info/dependency_links.txt
+compygui.egg-info/top_level.txt
