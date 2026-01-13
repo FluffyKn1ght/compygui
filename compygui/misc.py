@@ -9,4 +9,5 @@ https://github.com/FluffyKn1ght/compygui
 
 
 def dummy(*args, **kwargs):
+    """Dummy method that does nothing."""
     pass

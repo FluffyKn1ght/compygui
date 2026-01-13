@@ -67,7 +67,11 @@ class IVector2:
 
 @dataclass
 class Vector2:
-    """A 2D vector."""
+    """A 2D vector.
+
+    x: The X axis.
+    y: The Y axis.
+    """
     def __init__(self, x: float, y: float) -> None:
         super().__init__()
         self.x: float = x
@@ -131,7 +135,13 @@ class Vector2:
 
 @dataclass
 class Rect2:
-    """A 2D rectangle."""
+    """A 2D rectangle.
+
+    x: Position on the X axis.
+    y: Position on the Y axis.
+    w: Size on the X axis (width).
+    h: Size on the Y axis (height).
+    """
 
     def __init__(self, x: float, y: float, w: float, h: float) -> None:
         super().__init__()
@@ -142,7 +152,11 @@ class Rect2:
 
     @staticmethod
     def from_vectors(topleft: Vector2 | IVector2, size: Vector2 | IVector2) -> Rect2:
-        """Creates a Rect2() from two Vector2()s/IVector2()s"""
+        """Creates a Rect2() from two Vector2()s/IVector2()s
+
+        topleft: The Vector2()/IVector2() that provides the X and Y components
+        size: The Vector2()/IVector2() that provides the W and H components
+        """
         return Rect2(topleft.x, topleft.y, size.x, size.y)
 
     @staticmethod
@@ -175,9 +189,13 @@ class IRect2:
         self.h: int = h
 
     @staticmethod
-    def from_vectors(topleft: IVector2, size: IVector2) -> Rect2:
-        """Creates an IRect2() from two IVector2()s"""
-        return Rect2(topleft.x, topleft.y, size.x, size.y)
+    def from_vectors(topleft: IVector2, size: IVector2) -> IRect2:
+        """Creates an IRect2() from two IVector2()s
+
+        topleft: The IVector2() that provides the X and Y components
+        size: The IVector2() that provides the W and H components
+        """
+        return IRect2(topleft.x, topleft.y, size.x, size.y)
 
     @staticmethod
     def ZERO() -> IRect2:

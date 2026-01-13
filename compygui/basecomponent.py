@@ -6,10 +6,14 @@ class BaseComponent(ABC):
 
     A Component is an object that has one parent and any number of children,
     which define its location in a virtual tree, known as the VCT (Virtual
-    Component Tree).
+    Component Tree). The BaseComponent is the most bare-bones type of component,
+    as it's meant to serve as a base for other component types (however, you
+    shouldn't have a reason to use anything besides Component() and GUIComponent()).
     """
 
     def __init__(self) -> None:
+        self.destroyed : bool = False
+
         self._parent: BaseComponent | None = None
         self._children: list[BaseComponent] = []
 

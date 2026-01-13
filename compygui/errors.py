@@ -39,7 +39,7 @@ class SDLError(Exception):
 
 class SDLErrorDetector:
     """A context manager that can be used to check for any
-    SDL_GetError() errors and raise them as SDLError()s
+    SDL_GetError() errors and raise them as SDLError-s
     """
 
     def __init__(

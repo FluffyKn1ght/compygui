@@ -42,6 +42,8 @@ please see <https://www.gnu.org/licenses/>.
     def __init__(
         self, *args, title: str = "ComPyGUI App", silence_license_info: bool = False
     ) -> None:
+        self.destroyed: bool = False
+
         if not silence_license_info:
             ComPyGUIApp._print_license_info()
 
@@ -92,6 +94,8 @@ please see <https://www.gnu.org/licenses/>.
 
     def quit(self) -> None:
         """Clean up and close the app."""
+        if self.destroyed:
+            return
 
         win_idx: int = 0
         for window in self.windows:

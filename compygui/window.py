@@ -23,20 +23,38 @@ from compygui.errors import SDLErrorDetector
 
 
 class WindowPositionFlags:
+    """A class that holds two sets of SDL window flags for
+    the two different axis.
+
+    x: The X axis.
+    y: The Y axis.
+    """
+
     def __init__(self, x: SDL_WindowFlags, y: SDL_WindowFlags) -> None:
         self.x: int = x & (SDL_WINDOWPOS_CENTERED | SDL_WINDOWPOS_UNDEFINED)
         self.y: int = y & (SDL_WINDOWPOS_CENTERED | SDL_WINDOWPOS_UNDEFINED)
 
     @staticmethod
     def centered() -> WindowPositionFlags:
+        """Equivalent to WindowPositionFlags(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED)"""
         return WindowPositionFlags(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED)
 
     @staticmethod
     def undefined() -> WindowPositionFlags:
+        """Equivalent to WindowPositionFlags(SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED)"""
         return WindowPositionFlags(SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED)
 
 
-class Window(BaseComponent):
+class Window:
+    """An application window.
+
+    The Window() is the second-from-the-top-level object, which means that it has
+    to be registered to an ComPyGUIApp() via ComPyGUIApp().register_window()
+    to properly render and recieve events. Creating a Window() will automatically
+    create an SDL renderer, as well as a Viewport(). Any and all GUIComponents must be
+    parented to that viewport to be properly rendered.
+    """
+
     def __init__(
         self,
         *args,
@@ -45,7 +63,7 @@ class Window(BaseComponent):
         size: Vector2,
         flags: int = SDL_WINDOW_RESIZABLE
     ) -> None:
-        super().__init__()
+        self.destroyed: bool = False
 
         self._window: SDL_Window | None = None
         self.shown: bool = False
@@ -60,6 +78,9 @@ class Window(BaseComponent):
                 flags | SDL_WINDOW_HIDDEN,
             )
 
+    def __del__(self) -> None:
+        self.destroy()
+
     def reparent(self, to: BaseComponent | None) -> None:
         raise NotImplementedError("Cannot reparent Window()")
 
@@ -70,4 +91,7 @@ class Window(BaseComponent):
         SDL_HideWindow(self._window)
 
     def destroy(self) -> None:
+        if self.destroyed:
+            return
+
         SDL_DestroyWindow(self._window)
