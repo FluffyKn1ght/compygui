@@ -26,7 +26,7 @@ from sdl2.video import (
 )
 from compygui.component import Component
 from compygui.datatypes import RGBAMask, IVector2
-from compygui.errors import SDLErrorDetector
+from compygui.errors import SDLError, SDLErrorDetector
 from compygui.viewport import Viewport
 
 
@@ -61,6 +61,14 @@ class Window:
     to properly render and recieve events. Creating a Window() will automatically
     create an SDL renderer, as well as a Viewport(). Any and all GUIComponents must be
     parented to that viewport to be properly rendered.
+
+    title: The title of the window
+    position: The position of the window on the screen
+    size: The size of the window
+    window_flags: Flags to be passed to SDL_CreateWindow
+    renderer_flags: Flags to be passed to SDL_CreateRenderer
+    vp_bit_depth: Viewport surface bit depth
+    vp_mask: Viewport RGBA mask/format
     """
 
     def __init__(
@@ -71,16 +79,13 @@ class Window:
         size: IVector2,
         window_flags: int = SDL_WINDOW_RESIZABLE,
         renderer_flags: int = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC,
-        vp_bit_depth: int = 8
+        vp_bit_depth: int = 8,
+        vp_mask: RGBAMask = RGBAMask.RGBA(),
     ) -> None:
         self.destroyed: bool = False
 
         self._window: SDL_Window | None = None
         self._renderer: SDL_Renderer | None = None
-
-        self.viewport: Viewport = Viewport(
-            size=size, mask=RGBAMask.RGBA(), bit_depth=vp_bit_depth
-        )
 
         self.shown: bool = False
 
@@ -94,8 +99,15 @@ class Window:
                 window_flags | SDL_WINDOW_HIDDEN,
             )
 
-        with SDLErrorDetector(error_info="Failed to create renderer"):
+        with SDLErrorDetector(error_info="Failed to create renderer for window"):
             self._renderer = SDL_CreateRenderer(self._window, -1, renderer_flags)
+
+        try:
+            self.viewport: Viewport = Viewport(
+                size=size, mask=vp_mask, bit_depth=vp_bit_depth
+            )
+        except SDLError as e:
+            raise SDLError(f"Failed to create viewport for window: {e.msg}")
 
     def __del__(self) -> None:
         self.destroy()
