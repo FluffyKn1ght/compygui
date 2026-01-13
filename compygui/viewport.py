@@ -43,7 +43,7 @@ class BaseViewport(Component, ABC):
     def recreate_surface(self) -> None:
         """(re-)Create the Viewport()'s surface to match class properties"""
 
-        with SDLErrorDetector("Failed to (re)create viewport surface"):
+        with SDLErrorDetector(error_info="Failed to (re)create viewport surface"):
             if self._surface:
                 SDL_FreeSurface(self._surface)
                 self._surface = None

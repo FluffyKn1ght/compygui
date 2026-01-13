@@ -14,6 +14,7 @@ from sdl2 import (
     SDL_HideWindow,
     SDL_WindowFlags,
 )
+from sdl2.events import SDL_WindowEvent
 from sdl2.render import SDL_RENDERER_ACCELERATED, SDL_CreateRenderer, SDL_Renderer
 from sdl2.video import (
     SDL_WINDOW_HIDDEN,
@@ -115,11 +116,16 @@ class Window:
     def __del__(self) -> None:
         self.destroy()
 
+    def _handle_window_event(self, event: SDL_WindowEvent) -> None:
+        pass
+
     def show(self) -> None:
         SDL_ShowWindow(self._window)
+        self.shown = True
 
     def hide(self) -> None:
         SDL_HideWindow(self._window)
+        self.shown = False
 
     def destroy(self) -> None:
         if self.destroyed:

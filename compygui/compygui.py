@@ -10,7 +10,14 @@ https://github.com/FluffyKn1ght/compygui
 from abc import abstractmethod, ABC
 
 from sdl2 import SDL_INIT_VIDEO, SDL_Init, SDL_Quit
-from sdl2.events import SDL_QUIT, SDL_Event, SDL_PollEvent
+from sdl2.events import (
+    SDL_QUIT,
+    SDL_WINDOWEVENT,
+    SDL_Event,
+    SDL_PollEvent,
+    SDL_WindowEvent,
+)
+from sdl2.video import SDL_WINDOWEVENT_CLOSE, SDL_GetWindowID, SDL_GetWindowTitle
 
 from compygui.errors import SDLErrorDetector
 from compygui.misc import dummy
@@ -73,12 +80,15 @@ NOTICE and LICENSE files for more information
     def _mainloop(self) -> None:
         """Starts the main application loop"""
         while True:
-            event: SDL_Event = SDL_Event()
+            event = SDL_Event()
             with SDLErrorDetector(on_error=dummy):
                 SDL_PollEvent(event)
 
-                if event.type == SDL_QUIT:
-                    break
+                if event.type == SDL_WINDOWEVENT:
+                    for window in self.windows:
+                        if SDL_GetWindowID(window._window) == event.window.windowID:
+                            window._handle_window_event(event)
+                            break
 
     def create_window(self, *args, **kwargs) -> Window:
         """Creates and registers a Window to this app
