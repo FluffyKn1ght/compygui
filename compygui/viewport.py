@@ -32,7 +32,7 @@ class BaseViewport(Component, ABC):
         bg_color: RGBAColor = RGBAColor.TWHITE(),
         **props
     ) -> None:
-        super().__init__(*children, **props)
+        super().__init__(*children, **kwargs)
 
         self._surface: SDL_Surface | None = None
 
