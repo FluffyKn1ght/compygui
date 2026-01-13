@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 
-from compygui.window import Window
-
 
 class Component(ABC):
     """An abstract base class for a Component - the minimal ComPyGUI object.
