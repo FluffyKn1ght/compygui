@@ -9,13 +9,18 @@ class Component(ABC):
     Component Tree). The BaseComponent is the most bare-bones type of component,
     as it's meant to serve as a base for other component types (however, you
     shouldn't have a reason to use anything besides Component() and GUIComponent()).
+
+    *children: The children of the component
     """
 
-    def __init__(self) -> None:
+    def __init__(self, *children) -> None:
         self.destroyed: bool = False
 
         self._parent: Component | None = None
         self._children: list[Component] = []
+
+        for child in self.children:
+            child.reparent(self)
 
     def __del__(self) -> None:
         self.destroy()
