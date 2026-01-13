@@ -16,12 +16,11 @@ class BlankWindowApp(ComPyGUIApp):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def run(self):
+    def setup(self):
         window: Window = self.create_window(
             position=WindowPositionFlags.centered(), size=Vector2(720, 540)
         )
         window.show()
-        self.mainloop()
 
 
 app: BlankWindowApp = BlankWindowApp(title="Blank Window")

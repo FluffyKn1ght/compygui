@@ -18,7 +18,7 @@ from compygui.window import Window
 
 
 class ComPyGUIApp(ABC):
-    """Abstract base class for a ComPyGUI app."""
+    """Abstract base class for a ComPyGUI app"""
 
     NOTICE: str = """
 ComPyGUI - A competent GUI library for Python
@@ -57,8 +57,8 @@ please see <https://www.gnu.org/licenses/>.
     def __del__(self):
         self.quit()
 
-    def mainloop(self) -> None:
-        """Starts the main application loop."""
+    def _mainloop(self) -> None:
+        """Starts the main application loop"""
         while True:
             event: SDL_Event = SDL_Event()
             with SDLErrorDetector(on_error=dummy):
@@ -68,7 +68,7 @@ please see <https://www.gnu.org/licenses/>.
                     break
 
     def create_window(self, *args, **kwargs) -> Window:
-        """Creates and registers a Window to this app.
+        """Creates and registers a Window to this app
 
         **kwargs: Window.__init__() keyword arguments
         """
@@ -84,7 +84,7 @@ please see <https://www.gnu.org/licenses/>.
         return win
 
     def register_window(self, window: Window) -> None:
-        """Registers a window to this app.
+        """Registers a window to this app
 
         window: The Window() to register
         """
@@ -93,7 +93,7 @@ please see <https://www.gnu.org/licenses/>.
         self.windows.append(window)
 
     def quit(self) -> None:
-        """Clean up and close the app."""
+        """Clean up and close the app"""
         if self.destroyed:
             return
 
@@ -119,6 +119,11 @@ NOTICE and LICENSE files for more information
         )
 
     @abstractmethod
-    def run(self) -> None:
-        """(Abstract method) Launch the app."""
+    def setup(self) -> None:
+        """(Abstract method) Sets up the app"""
         pass
+
+    def run(self) -> None:
+        """(Abstract method) Launches the app."""
+        self.setup()
+        self._mainloop()
