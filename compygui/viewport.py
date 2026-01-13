@@ -28,7 +28,7 @@ class BaseViewport(Component, ABC):
         *args,
         size: IVector2,
         mask: RGBAColor = RGBAColor.WHITE(),
-        bit_depth: int = 24,
+        bit_depth: int = 8,
         bg_color: RGBAColor = RGBAColor.TWHITE(),
         **kwargs
     ) -> None:
