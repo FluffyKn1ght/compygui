@@ -85,6 +85,8 @@ class Window:
     ) -> None:
         self.destroyed: bool = False
 
+        self.size: IVector2 = size
+
         self._window: SDL_Window | None = None
         self._renderer: SDL_Renderer | None = None
 
