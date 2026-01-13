@@ -59,8 +59,9 @@ class Window:
     The Window() is the second-from-the-top-level object, which means that it has
     to be registered to an ComPyGUIApp() via ComPyGUIApp().register_window()
     to properly render and recieve events. Creating a Window() will automatically
-    create an SDL renderer, as well as a Viewport(). Any and all GUIComponents must be
-    parented to that viewport to be properly rendered.
+    create an SDL renderer, as well as a Viewport() to serve as a VCT root.
+    Any and all GUIComponents must be parented to that viewport
+    to be properly rendered inside the window.
 
     title: The title of the window
     position: The position of the window on the screen

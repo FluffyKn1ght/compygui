@@ -14,10 +14,9 @@ from compygui.errors import ComPyGUIError, SDLErrorDetector
 class BaseViewport(Component, ABC):
     """An abstract base class for an RGBA surface that can render any content.
 
-    This is the last required top-level VCT node. All GUIComponents
-    have to be parented to a BaseViewport() (or, better, the non-abstract
-    Viewport()) to recieve events from ComPyGUIApp() and Window()
-    objects and actually get rendered.
+    This is the top-level VCT node. All GUIComponents have to be parented
+    to a BaseViewport() (or, better, the non-abstract Viewport()) to recieve
+    events from ComPyGUIApp() and Window() objects and actually get rendered.
 
     size: The starting size of the Viewport()
     mask: The color mask/pixel format of the Viewport()'s _surface
