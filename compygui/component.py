@@ -19,7 +19,7 @@ class Component(ABC):
         self._parent: Component | None = None
         self._children: list[Component] = []
 
-        for child in self.children:
+        for child in children:
             child.reparent(self)
 
     def __del__(self) -> None:
