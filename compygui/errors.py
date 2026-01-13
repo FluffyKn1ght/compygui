@@ -10,7 +10,6 @@ https://github.com/FluffyKn1ght/compygui
 from enum import Enum
 from typing import Callable
 
-from sdl2 import SDL_GetErrorMsg
 from sdl2.error import SDL_ClearError, SDL_GetError
 
 
@@ -28,7 +27,7 @@ class SDLError(Exception):
 
     @staticmethod
     def from_sdl_geterror(info: str) -> SDLError:
-        return SDLError(f"{info}: SDL error {SDL_GetError()} ({SDL_GetErrorMsg()})")
+        return SDLError(f"{info}: SDL error: {SDL_GetError().decode("utf-8")}")
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}: {self.msg}"

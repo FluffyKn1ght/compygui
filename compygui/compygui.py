@@ -9,7 +9,7 @@ https://github.com/FluffyKn1ght/compygui
 
 from abc import abstractmethod, ABC
 
-from sdl2 import SDL_INIT_VIDEO, SDL_Init
+from sdl2 import SDL_INIT_VIDEO, SDL_Init, SDL_Quit
 from sdl2.events import SDL_QUIT, SDL_Event, SDL_PollEvent
 
 from compygui.errors import SDLErrorDetector
@@ -50,17 +50,8 @@ please see <https://www.gnu.org/licenses/>.
 
         self.windows: list[Window] = []
 
-    def create_window(self, *args, **kwargs) -> Window:
-        try:
-            if kwargs["title"] == None:
-                kwargs["title"] = self.title
-        except KeyError:
-            kwargs["title"] = self.title
-
-        win: Window = Window(**kwargs)
-        self.windows.append(win)
-
-        return win
+    def __del__(self):
+        self.quit()
 
     def mainloop(self) -> None:
         while True:
@@ -70,6 +61,31 @@ please see <https://www.gnu.org/licenses/>.
 
                 if event.type == SDL_QUIT:
                     break
+
+    def create_window(self, *args, **kwargs) -> Window:
+        try:
+            if not kwargs["title"]:
+                kwargs["title"] = self.title
+        except KeyError:
+            kwargs["title"] = self.title
+
+        win: Window = Window(*args, **kwargs)
+        self.register_window(win)
+
+        return win
+
+    def register_window(self, window: Window) -> None:
+        # TODO: Register a renderer
+        self.windows.append(window)
+
+    def quit(self) -> None:
+        win_idx: int = 0
+        for window in self.windows:
+            window.destroy()
+            del self.windows[win_idx]
+            win_idx += 1
+
+        SDL_Quit()
 
     @staticmethod
     def _print_license_info() -> None:
