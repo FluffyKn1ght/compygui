@@ -16,7 +16,6 @@ from sdl2.video import (
 )
 from compygui.datatypes import Vector2
 from compygui.errors import SDLErrorDetector
-from compygui.decorators import must_be_initialized
 
 
 class WindowPositionFlags:
@@ -42,8 +41,6 @@ class Window:
         size: Vector2,
         flags: int = SDL_WINDOW_RESIZABLE
     ) -> None:
-        self.initialized: bool = False
-
         self._window: SDL_Window | None = None
         self.shown: bool = False
 
@@ -57,12 +54,8 @@ class Window:
                 flags,
             )
 
-        self.initialized = True
-
-    @must_be_initialized
     def show(self) -> None:
         SDL_ShowWindow(self._window)
 
-    @must_be_initialized
     def hide(self) -> None:
         SDL_HideWindow(self._window)

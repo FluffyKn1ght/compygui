@@ -15,7 +15,6 @@ from sdl2.events import SDL_QUIT, SDL_Event, SDL_PollEvent
 from compygui.errors import SDLErrorDetector
 from compygui.misc import dummy
 from compygui.window import Window
-from compygui.decorators import must_be_initialized
 
 
 class ComPyGUIApp(ABC):
@@ -44,8 +43,6 @@ please see <https://www.gnu.org/licenses/>.
         if not silence_license_info:
             ComPyGUIApp._print_license_info()
 
-        self.initialized: bool = False
-
         with SDLErrorDetector(error_info="Failed to initialize SDL2 library"):
             SDL_Init(SDL_INIT_VIDEO)
 
@@ -53,9 +50,6 @@ please see <https://www.gnu.org/licenses/>.
 
         self.windows: list[Window] = []
 
-        self.initialized = True
-
-    @must_be_initialized
     def create_window(self, *args, **kwargs) -> Window:
         try:
             if kwargs["title"] == None:
@@ -68,13 +62,7 @@ please see <https://www.gnu.org/licenses/>.
 
         return win
 
-    @must_be_initialized
     def mainloop(self) -> None:
-        # TODO: Add threading options?
-        self._mainloop()
-
-    @must_be_initialized
-    def _mainloop(self) -> None:
         while True:
             event: SDL_Event = SDL_Event()
             with SDLErrorDetector(on_error=dummy):
@@ -97,6 +85,5 @@ NOTICE and LICENSE files for more information
         )
 
     @abstractmethod
-    @must_be_initialized
     def run(self) -> None:
         pass

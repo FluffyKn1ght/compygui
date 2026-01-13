@@ -23,6 +23,6 @@ class BlankWindowApp(ComPyGUIApp):
         self.mainloop()
 
 
-app: BlankWindowApp = BlankWindowApp(title="Blank Window 2")
+app: BlankWindowApp = BlankWindowApp(title="Blank Window")
 
 app.run()
