@@ -77,7 +77,7 @@ class Window:
         self._window: SDL_Window | None = None
         self._renderer: SDL_Renderer | None = None
 
-        self.viewport: Viewport = Viewport(window=self)
+        self.viewport: Viewport = Viewport()
 
         self.shown: bool = False
 
