@@ -2,6 +2,13 @@ from abc import ABC, abstractmethod
 
 
 class BaseComponent(ABC):
+    """An abstract base class for a Component - the minimal ComPyGUI object.
+
+    A Component is an object that has one parent and any number of children,
+    which define its location in a virtual tree, known as the VCT (Virtual
+    Component Tree).
+    """
+
     def __init__(self) -> None:
         self._parent: BaseComponent | None = None
         self._children: list[BaseComponent] = []
@@ -30,6 +37,8 @@ class BaseComponent(ABC):
         )
 
     def reparent(self, to: BaseComponent | None) -> None:
+        """Reparent another BaseComponent() to this BaseComponent()"""
+
         # TODO: Events
         if self._parent:
             try:
@@ -44,4 +53,5 @@ class BaseComponent(ABC):
 
     @abstractmethod
     def destroy(self) -> None:
+        """Clean up and delete this component"""
         pass

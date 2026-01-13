@@ -8,5 +8,3 @@ https://github.com/FluffyKn1ght/compygui
 """
 
 from typing import Callable
-
-from compygui.errors import NotInitializedError

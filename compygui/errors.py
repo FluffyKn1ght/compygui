@@ -14,6 +14,8 @@ from sdl2.error import SDL_ClearError, SDL_GetError
 
 
 class ClearErrorOn(Enum):
+    """When should an SDLErrorHandler() run SDL_ClearError()"""
+
     NEVER = 0b00
     ENTER = 0b01
     EXIT = 0b10
@@ -21,6 +23,8 @@ class ClearErrorOn(Enum):
 
 
 class SDLError(Exception):
+    """SDL2-related error"""
+
     def __init__(self, msg: str, *args: object) -> None:
         super().__init__(*args)
         self.msg: str = msg
@@ -34,6 +38,10 @@ class SDLError(Exception):
 
 
 class SDLErrorDetector:
+    """A context manager that can be used to check for any
+    SDL_GetError() errors and raise them as SDLError()s
+    """
+
     def __init__(
         self,
         *args,
@@ -61,18 +69,16 @@ class SDLErrorDetector:
 
     @staticmethod
     def _raise_sdlerror(e: SDLError) -> None:
+        """Default on_error method. Raises an SDLError for handling via a try/except"""
         raise e
 
 
 class ComPyGUIError(Exception):
+    """ComPyGUI-related error"""
+
     def __init__(self, msg: str, *args: object) -> None:
         super().__init__(*args)
         self.msg: str = msg
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}: {self.msg}"
-
-
-class NotInitializedError(ComPyGUIError):
-    def __init__(self, *args) -> None:
-        super().__init__("Object was not initialized", *args)

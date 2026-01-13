@@ -4,6 +4,8 @@ from compygui.window import Window
 
 
 class Component(BaseComponent):
+    """A component that is tied to a Window() of a ComPyGUIApp()"""
+
     def __init__(self) -> None:
         super().__init__()
 
