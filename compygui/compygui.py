@@ -87,7 +87,7 @@ NOTICE and LICENSE files for more information
                 if event.type == SDL_WINDOWEVENT:
                     for window in self.windows:
                         if SDL_GetWindowID(window._window) == event.window.windowID:
-                            window._handle_window_event(event)
+                            window._handle_window_event(event.window)
                             break
 
     def create_window(self, *args, **kwargs) -> Window:
