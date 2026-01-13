@@ -7,7 +7,14 @@ for important license information.
 https://github.com/FluffyKn1ght/compygui
 """
 
-from sdl2 import SDL_WINDOW_RESIZABLE, SDL_CreateWindow, SDL_HideWindow, SDL_WindowFlags
+from sdl2 import (
+    SDL_RENDERER_PRESENTVSYNC,
+    SDL_WINDOW_RESIZABLE,
+    SDL_CreateWindow,
+    SDL_HideWindow,
+    SDL_WindowFlags,
+)
+from sdl2.render import SDL_RENDERER_ACCELERATED, SDL_CreateRenderer, SDL_Renderer
 from sdl2.video import (
     SDL_WINDOW_HIDDEN,
     SDL_WINDOW_SHOWN,
@@ -17,9 +24,10 @@ from sdl2.video import (
     SDL_ShowWindow,
     SDL_Window,
 )
-from compygui.basecomponent import BaseComponent
+from compygui.component import Component
 from compygui.datatypes import Vector2
 from compygui.errors import SDLErrorDetector
+from compygui.viewport import Viewport
 
 
 class WindowPositionFlags:
@@ -61,11 +69,16 @@ class Window:
         title="Window",
         position: Vector2 | WindowPositionFlags,
         size: Vector2,
-        flags: int = SDL_WINDOW_RESIZABLE
+        window_flags: int = SDL_WINDOW_RESIZABLE,
+        renderer_flags: int = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC,
     ) -> None:
         self.destroyed: bool = False
 
         self._window: SDL_Window | None = None
+        self._renderer: SDL_Renderer | None = None
+
+        self.viewport: Viewport = Viewport(window=self)
+
         self.shown: bool = False
 
         with SDLErrorDetector(error_info="Failed to create window"):
@@ -75,14 +88,14 @@ class Window:
                 position.y,
                 size.x,
                 size.y,
-                flags | SDL_WINDOW_HIDDEN,
+                window_flags | SDL_WINDOW_HIDDEN,
             )
+
+        with SDLErrorDetector(error_info="Failed to create renderer"):
+            self._renderer = SDL_CreateRenderer(self._window, -1, renderer_flags)
 
     def __del__(self) -> None:
         self.destroy()
-
-    def reparent(self, to: BaseComponent | None) -> None:
-        raise NotImplementedError("Cannot reparent Window()")
 
     def show(self) -> None:
         SDL_ShowWindow(self._window)
