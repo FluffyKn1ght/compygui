@@ -10,6 +10,7 @@ https://github.com/FluffyKn1ght/compygui
 from sdl2 import (
     SDL_RENDERER_PRESENTVSYNC,
     SDL_WINDOW_RESIZABLE,
+    SDL_WINDOWEVENT,
     SDL_CreateWindow,
     SDL_HideWindow,
     SDL_WindowFlags,
@@ -19,6 +20,7 @@ from sdl2.render import SDL_RENDERER_ACCELERATED, SDL_CreateRenderer, SDL_Render
 from sdl2.video import (
     SDL_WINDOW_HIDDEN,
     SDL_WINDOW_SHOWN,
+    SDL_WINDOWEVENT_CLOSE,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_UNDEFINED,
     SDL_DestroyWindow,
@@ -28,6 +30,7 @@ from sdl2.video import (
 from compygui.component import Component
 from compygui.datatypes import RGBAMask, IVector2
 from compygui.errors import SDLError, SDLErrorDetector
+from compygui.events import Event, EventOrigin, EventQueue, EventType
 from compygui.viewport import Viewport
 
 
@@ -83,6 +86,7 @@ class Window:
         renderer_flags: int = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC,
         vp_bit_depth: int = 8,
         vp_mask: RGBAMask = RGBAMask.RGBA(),
+        app_event_queue: EventQueue,
     ) -> None:
         self.destroyed: bool = False
 
@@ -106,18 +110,38 @@ class Window:
         with SDLErrorDetector(error_info="Failed to create renderer for window"):
             self._renderer = SDL_CreateRenderer(self._window, -1, renderer_flags)
 
+        self.event_queue: EventQueue = EventQueue()
+        self.app_events: EventQueue = app_event_queue
+
         try:
             self.viewport: Viewport = Viewport(
-                size=size, mask=vp_mask, bit_depth=vp_bit_depth
+                size=size,
+                mask=vp_mask,
+                bit_depth=vp_bit_depth,
+                window_events=self.event_queue,
             )
         except SDLError as e:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
+
+        @self.event_queue.listen(EventType.WINDOW_CLOSE)
+        def on_window_close(event: Event) -> None:
+            self.hide()
+
+            self.app_events.fire(
+                EventType.WINDOW_CLOSED,
+                event_oneshot=True,
+                event_origin=EventOrigin.WINDOW,
+                window=self,
+            )
+
+            self.destroy()
 
     def __del__(self) -> None:
         self.destroy()
 
     def _handle_window_event(self, event: SDL_WindowEvent) -> None:
-        pass
+        if event.event == SDL_WINDOWEVENT_CLOSE:
+            self.event_queue.fire(EventType.WINDOW_CLOSE)
 
     def show(self) -> None:
         SDL_ShowWindow(self._window)

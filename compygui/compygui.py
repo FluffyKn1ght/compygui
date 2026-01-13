@@ -19,7 +19,8 @@ from sdl2.events import (
 )
 from sdl2.video import SDL_WINDOWEVENT_CLOSE, SDL_GetWindowID, SDL_GetWindowTitle
 
-from compygui.errors import SDLErrorDetector
+from compygui.errors import ComPyGUIError, SDLErrorDetector
+from compygui.events import Event, EventOrigin, EventQueue, EventType
 from compygui.misc import dummy
 from compygui.window import Window
 
@@ -60,6 +61,8 @@ please see <https://www.gnu.org/licenses/>.
         self.title: str = title
 
         self.windows: list[Window] = []
+        self.running: bool = False
+        self.event_queue = EventQueue()
 
     def __del__(self):
         self.quit()
@@ -79,7 +82,7 @@ NOTICE and LICENSE files for more information
 
     def _mainloop(self) -> None:
         """Starts the main application loop"""
-        while True:
+        while self.running:
             event = SDL_Event()
             with SDLErrorDetector(on_error=dummy):
                 SDL_PollEvent(event)
@@ -87,11 +90,13 @@ NOTICE and LICENSE files for more information
                 if event.type == SDL_WINDOWEVENT:
                     for window in self.windows:
                         if SDL_GetWindowID(window._window) == event.window.windowID:
-                            window._handle_window_event(event.window)
+                            window._handle_window_event(
+                                event.window
+                            )  # TODO: Replace w/ app event
                             break
 
     def create_window(self, *args, **kwargs) -> Window:
-        """Creates and registers a Window to this app
+        """Creates and registers a Window() to this app
 
         **kwargs: Window.__init__() keyword arguments
         """
@@ -101,7 +106,7 @@ NOTICE and LICENSE files for more information
         except KeyError:
             kwargs["title"] = self.title
 
-        win: Window = Window(*args, **kwargs)
+        win: Window = Window(*args, app_event_queue=self.event_queue, **kwargs)
         self.register_window(win)
 
         return win
@@ -112,11 +117,23 @@ NOTICE and LICENSE files for more information
         window: The Window() to register
         """
 
+        idx: int = len(self.windows) - 1
         self.windows.append(window)
 
+        @self.event_queue.listen(EventType.WINDOW_CLOSED)
+        def on_window_close(event: Event) -> None:
+            if event.data["window"] == window:
+                del self.windows[idx]
+
+                if not self.windows:
+                    self.running = False
+
     def run(self) -> None:
-        """(Abstract method) Launches the app."""
+        """Launches the app."""
+        if self.running:
+            raise ComPyGUIError("App is already running")
         self.setup()
+        self.running = True
         self._mainloop()
 
     def quit(self) -> None:

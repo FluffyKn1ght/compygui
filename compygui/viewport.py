@@ -9,6 +9,7 @@ from sdl2.surface import (
 from compygui.component import Component
 from compygui.datatypes import IRect2, RGBAColor, IVector2
 from compygui.errors import ComPyGUIError, SDLErrorDetector
+from compygui.events import EventQueue
 
 
 class BaseViewport(Component, ABC):
@@ -30,6 +31,8 @@ class BaseViewport(Component, ABC):
         mask: RGBAColor = RGBAColor.WHITE(),
         bit_depth: int = 8,
         bg_color: RGBAColor = RGBAColor.TWHITE(),
+        window_events: EventQueue,
+        local_events: EventQueue | None = None,
         **props
     ) -> None:
         super().__init__(*children, **props)
