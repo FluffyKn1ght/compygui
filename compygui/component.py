@@ -11,11 +11,14 @@ class Component(ABC):
     shouldn't have a reason to use anything besides Component() and GUIComponent()).
     """
 
-    def __init__(self) -> None:
+    def __init__(self, *children) -> None:
         self.destroyed: bool = False
 
         self._parent: Component | None = None
         self._children: list[Component] = []
+
+        for child in self.children:
+            child.reparent(self)
 
     def __del__(self) -> None:
         self.destroy()

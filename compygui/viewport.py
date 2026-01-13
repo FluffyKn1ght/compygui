@@ -25,14 +25,14 @@ class BaseViewport(Component, ABC):
 
     def __init__(
         self,
-        *args,
+        *children,
         size: IVector2,
         mask: RGBAColor = RGBAColor.WHITE(),
         bit_depth: int = 8,
         bg_color: RGBAColor = RGBAColor.TWHITE(),
         **kwargs
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(*children, **kwargs)
 
         self._surface: SDL_Surface | None = None
 
