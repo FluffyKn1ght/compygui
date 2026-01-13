@@ -25,7 +25,7 @@ from sdl2.video import (
     SDL_Window,
 )
 from compygui.component import Component
-from compygui.datatypes import Vector2
+from compygui.datatypes import RGBAMask, IVector2
 from compygui.errors import SDLErrorDetector
 from compygui.viewport import Viewport
 
@@ -67,17 +67,20 @@ class Window:
         self,
         *args,
         title="Window",
-        position: Vector2 | WindowPositionFlags,
-        size: Vector2,
+        position: IVector2 | WindowPositionFlags,
+        size: IVector2,
         window_flags: int = SDL_WINDOW_RESIZABLE,
         renderer_flags: int = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC,
+        vp_bit_depth: int = 8
     ) -> None:
         self.destroyed: bool = False
 
         self._window: SDL_Window | None = None
         self._renderer: SDL_Renderer | None = None
 
-        self.viewport: Viewport = Viewport()
+        self.viewport: Viewport = Viewport(
+            size=size, mask=RGBAMask.RGBA(), bit_depth=vp_bit_depth
+        )
 
         self.shown: bool = False
 

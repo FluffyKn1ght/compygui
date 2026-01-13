@@ -8,7 +8,7 @@ https://github.com/FluffyKn1ght/compygui
 """
 
 from compygui import ComPyGUIApp, Window
-from compygui.datatypes import Vector2
+from compygui.datatypes import IVector2
 from compygui.window import WindowPositionFlags
 
 
@@ -18,7 +18,7 @@ class BlankWindowApp(ComPyGUIApp):
 
     def setup(self):
         window: Window = self.create_window(
-            position=WindowPositionFlags.centered(), size=Vector2(720, 540)
+            position=WindowPositionFlags.centered(), size=IVector2(720, 540)
         )
         window.show()
 
