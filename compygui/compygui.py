@@ -57,6 +57,19 @@ please see <https://www.gnu.org/licenses/>.
     def __del__(self):
         self.quit()
 
+    @staticmethod
+    def _print_license_info() -> None:
+        print(
+            """
+ComPyGUI library for Python 3.14+, version 0.1.0
+(Copyright (C) 2026 FluffyKn1ght)
+https://github.com/FluffyKn1ght/compygui
+
+ComPyGUI is distributed under GPL v3, please see the
+NOTICE and LICENSE files for more information
+            """
+        )
+
     def _mainloop(self) -> None:
         """Starts the main application loop"""
         while True:
@@ -89,8 +102,12 @@ please see <https://www.gnu.org/licenses/>.
         window: The Window() to register
         """
 
-        # TODO: Register a renderer
         self.windows.append(window)
+
+    def run(self) -> None:
+        """(Abstract method) Launches the app."""
+        self.setup()
+        self._mainloop()
 
     def quit(self) -> None:
         """Clean up and close the app"""
@@ -105,25 +122,7 @@ please see <https://www.gnu.org/licenses/>.
 
         SDL_Quit()
 
-    @staticmethod
-    def _print_license_info() -> None:
-        print(
-            """
-ComPyGUI library for Python 3.14+, version 0.1.0
-(Copyright (C) 2026 FluffyKn1ght)
-https://github.com/FluffyKn1ght/compygui
-
-ComPyGUI is distributed under GPL v3, please see the
-NOTICE and LICENSE files for more information
-            """
-        )
-
     @abstractmethod
     def setup(self) -> None:
         """(Abstract method) Sets up the app"""
         pass
-
-    def run(self) -> None:
-        """(Abstract method) Launches the app."""
-        self.setup()
-        self._mainloop()

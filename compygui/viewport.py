@@ -62,16 +62,16 @@ class BaseViewport(Component, ABC):
     def get_rect(self) -> IRect2:
         return IRect2.from_vectors(IVector2.ZERO(), self.size)
 
-    @abstractmethod
-    def render(self) -> None:
-        """Re-render the BaseViewport() and all of its GUIComponent()s"""
-        pass
-
     def destroy(self) -> None:
         """Clean up and delete the BaseViewport()"""
         if self._surface:
             SDL_FreeSurface(self._surface)
         super().destroy()
+
+    @abstractmethod
+    def render(self) -> None:
+        """Re-render the BaseViewport() and all of its GUIComponent()s"""
+        pass
 
 
 class Viewport(BaseViewport):
