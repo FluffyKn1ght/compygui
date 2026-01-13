@@ -1,5 +1,4 @@
 from compygui.component import Component
-from compygui.compygui import ComPyGUIApp
 from compygui.window import Window
 
 
