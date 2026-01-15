@@ -41,16 +41,20 @@ class EventQueue:
         self.events: list[Event] = []
         self._listeners: list[dict[str, Any]] = []
 
-    def listen(self, for_event: str) -> Callable:
-        def listen_deco(func: Callable) -> Callable:
+    def listen(
+        self, for_event: str, condition: Callable[[Event], bool] | None = None
+    ) -> Callable:
+        def register_listener(func: Callable) -> Callable:
             def listen_wrapper(event: Event, *args, **kwargs) -> Any:
                 return func(event)
 
-            self._listeners.append({"func": func, "type": for_event})
+            self._listeners.append(
+                {"func": func, "type": for_event, "check": condition}
+            )
 
             return listen_wrapper
 
-        return listen_deco
+        return register_listener
 
     def fire(self, evtype: str, *args, **evdata) -> None:
         event: Event = Event(evtype, *args, **evdata)
@@ -59,6 +63,10 @@ class EventQueue:
         idx: int = 0
         for listener in self._listeners:
             if listener["type"] == event.type:
+                if listener["check"] != None:
+                    if not listener["check"](event):
+                        continue
+
                 listener["func"](event)
 
                 if event.oneshot:
