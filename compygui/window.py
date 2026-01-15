@@ -13,13 +13,25 @@ from sdl2 import (
     SDL_CreateWindow,
     SDL_HideWindow,
     SDL_WindowFlags,
+    error,
 )
-from sdl2.render import SDL_RENDERER_ACCELERATED, SDL_CreateRenderer, SDL_Renderer
+from sdl2.render import (
+    SDL_RENDERER_ACCELERATED,
+    SDL_CreateRenderer,
+    SDL_CreateTextureFromSurface,
+    SDL_RenderClear,
+    SDL_RenderCopy,
+    SDL_RenderPresent,
+    SDL_Renderer,
+    SDL_Texture,
+)
+from sdl2.surface import SDL_Surface
 from sdl2.video import (
     SDL_WINDOW_HIDDEN,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_UNDEFINED,
     SDL_DestroyWindow,
+    SDL_GetWindowSurface,
     SDL_ShowWindow,
     SDL_Window,
 )
@@ -89,8 +101,9 @@ class Window:
 
         self.size: IVector2 = size
 
-        self._window: SDL_Window | None = None
-        self._renderer: SDL_Renderer | None = None
+        self._window: SDL_Window
+        self._renderer: SDL_Renderer
+        self.viewport: Viewport
 
         self.shown: bool = False
 
@@ -111,7 +124,7 @@ class Window:
         self.app_events: EventQueue = app_event_queue
 
         try:
-            self.viewport: Viewport = Viewport(
+            self.viewport = Viewport(
                 size=size,
                 mask=vp_mask,
                 bit_depth=vp_bit_depth,
@@ -121,6 +134,18 @@ class Window:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
 
         self.app_events.listen(EventType.APP_WINDOW_CLOSE)(self.on_window_close)
+        self.app_events.listen(EventType.APP_RENDER)(self.on_render)
+
+    def __del__(self) -> None:
+        self.destroy()
+
+    def _render(self) -> None:
+        with SDLErrorDetector(error_info="Error during window re-render"):
+            surface: SDL_Surface = SDL_GetWindowSurface(self._window)
+            tex: SDL_Texture = SDL_CreateTextureFromSurface(self._renderer, surface)
+            SDL_RenderClear(self._renderer)
+            SDL_RenderCopy(self._renderer, tex, None, None)
+            SDL_RenderPresent(self._renderer)
 
     def on_window_close(self, event: Event) -> None:
         """Event handler for "window.window_closed" (EventType.WINDOW_WINDOW_CLOSED)"""
@@ -135,8 +160,10 @@ class Window:
 
         self.destroy()
 
-    def __del__(self) -> None:
-        self.destroy()
+    def on_render(self, event: Event) -> None:
+        self.event_queue.fire(EventType.G_RENDER, event_origin=EventOrigin.WINDOW)
+
+        self._render()
 
     def show(self) -> None:
         SDL_ShowWindow(self._window)

@@ -8,6 +8,7 @@ https://github.com/FluffyKn1ght/compygui
 """
 
 from abc import abstractmethod, ABC
+import time
 
 from sdl2 import SDL_INIT_VIDEO, SDL_Init, SDL_Quit
 from sdl2.events import (
@@ -48,7 +49,11 @@ please see <https://www.gnu.org/licenses/>.
     """
 
     def __init__(
-        self, *args, title: str = "ComPyGUI App", silence_license_info: bool = False
+        self,
+        *args,
+        title: str = "ComPyGUI App",
+        silence_license_info: bool = False,
+        framerate: int = 60,
     ) -> None:
         self.destroyed: bool = False
 
@@ -59,10 +64,13 @@ please see <https://www.gnu.org/licenses/>.
             SDL_Init(SDL_INIT_VIDEO)
 
         self.title: str = title
+        self.framerate: int = framerate
 
         self.windows: list[Window] = []
         self.running: bool = False
         self.event_queue = EventQueue()
+
+        self._last_frame_time: float = time.thread_time()
 
     def __del__(self):
         self.quit()
@@ -81,7 +89,6 @@ NOTICE and LICENSE files for more information
         )
 
     def _mainloop(self) -> None:
-        """Starts the main application loop"""
         while self.running:
             event = SDL_Event()
             with SDLErrorDetector(on_error=dummy):
@@ -90,8 +97,26 @@ NOTICE and LICENSE files for more information
                 if event.type == SDL_WINDOWEVENT:
                     if event.window.event == SDL_WINDOWEVENT_CLOSE:
                         self.event_queue.fire(
-                            EventType.APP_WINDOW_CLOSE, event.window.windowID
+                            EventType.APP_WINDOW_CLOSE,
+                            EventOrigin.APP,
+                            event.window.windowID,
                         )
+
+            curtime: float = time.thread_time()
+            self.event_queue.fire(
+                EventType.APP_RENDER,
+                EventOrigin.APP,
+                delta=curtime - self._last_frame_time,
+            )
+            print(curtime - self._last_frame_time)
+
+            if (curtime - self._last_frame_time) < (1.0 / self.framerate):
+                print(
+                    f"waiting for {(1.0 / self.framerate) - (curtime - self._last_frame_time)}"
+                )
+                time.sleep((1.0 / self.framerate) - (curtime - self._last_frame_time))
+
+            self._last_frame_time = curtime
 
     def _get_window_by_id(self, id: int) -> Window | None:
         """Gets a Window from a window ID

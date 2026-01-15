@@ -7,6 +7,9 @@ from compygui.component import Component
 class EventType:
     UNKNOWN: str = "?"
 
+    G_RENDER: str = "render"
+
+    APP_RENDER: str = "app.render"
     APP_WINDOW_CLOSE: str = "app.window_close"
 
     WINDOW_WINDOW_CLOSED: str = "window.closed"
@@ -57,6 +60,14 @@ class EventQueue:
         return register_listener
 
     def fire(self, evtype: str, *args, **evdata) -> None:
+        if len(self.events) >= 1024:
+            raise OverflowError("Event queue size limit reached (1024 events)")
+
+        if len(self._listeners) >= 1024:
+            raise OverflowError(
+                "Event listener array size limit reached (1024 event listeners)"
+            )
+
         event: Event = Event(evtype, *args, **evdata)
         self.events.append(event)  # TODO: Make events expire
 
