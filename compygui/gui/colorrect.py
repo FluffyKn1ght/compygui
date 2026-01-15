@@ -1,8 +1,7 @@
 from sdl2.surface import SDL_FillRect, SDL_Surface
 from compygui.datatypes.rect2 import IRect2
-from compygui.datatypes.rgba import RGBAColor, RGBAMask
+from compygui.datatypes.rgba import RGBAColor
 from compygui.datatypes.vector2 import IVector2
-from compygui.events import EventQueue
 from compygui.guicomponent import GUIComponent
 
 
