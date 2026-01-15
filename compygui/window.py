@@ -41,7 +41,7 @@ from compygui.component import Component
 from compygui.datatypes.vector2 import IVector2
 from compygui.datatypes.rgba import RGBAMask
 from compygui.errors import SDLError, SDLErrorDetector
-from compygui.events import Event, EventOrigin, EventQueue, EventType
+from compygui.events import Event, EventListener, EventOrigin, EventQueue, EventType
 from compygui.viewport import Viewport
 
 
@@ -135,10 +135,12 @@ class Window:
         except SDLError as e:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
 
-        self.app_events.listen(
-            self.on_window_close, EventType.APP_WINDOW_CLOSE, oneshot=True
+        self.window_close_listener: EventListener = self.app_events.connect(
+            self, self.on_window_close, EventType.APP_WINDOW_CLOSE, oneshot=True
         )
-        self.app_events.listen(self.on_render, EventType.APP_RENDER)
+        self.render_listener: EventListener = self.app_events.connect(
+            self, self.on_render, EventType.APP_RENDER
+        )
 
     def __del__(self) -> None:
         self.destroy()
@@ -155,13 +157,6 @@ class Window:
         """Event handler for "window.window_closed" (EventType.WINDOW_WINDOW_CLOSED)"""
         if event.data["window_id"] == SDL_GetWindowID(self._window):
             self.hide()
-
-            self.app_events.fire(
-                EventType.WINDOW_WINDOW_CLOSED,
-                event_origin=EventOrigin.WINDOW,
-                window=self,
-            )
-
             self.destroy()
 
     def on_render(self, event: Event) -> None:
@@ -183,6 +178,15 @@ class Window:
         if self.destroyed:
             return
         self.destroyed = True
+
+        self.app_events.fire(
+            EventType.WINDOW_DESTROY,
+            event_origin=EventOrigin.WINDOW,
+            window=self,
+        )
+
+        self.render_listener.disconnect()
+        self.window_close_listener.disconnect()
 
         SDL_DestroyRenderer(self._renderer)
         SDL_DestroyWindow(self._window)

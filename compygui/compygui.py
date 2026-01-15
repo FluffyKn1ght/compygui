@@ -72,6 +72,8 @@ please see <https://www.gnu.org/licenses/>.
 
         self._last_frame_time: float = time.thread_time()
 
+        self.event_queue.connect(self, self.on_window_destroy, EventType.WINDOW_DESTROY)
+
     def __del__(self):
         self.quit()
 
@@ -150,11 +152,7 @@ NOTICE and LICENSE files for more information
         idx: int = len(self.windows) - 1
         self.windows.append(window)
 
-        self.event_queue.listen(
-            self.on_window_closed, EventType.WINDOW_WINDOW_CLOSED, oneshot=True
-        )
-
-    def on_window_closed(self, event: Event) -> None:
+    def on_window_destroy(self, event: Event) -> None:
         if event.data["window"] == event.data["window"]:
             self.windows.remove(event.data["window"])
 

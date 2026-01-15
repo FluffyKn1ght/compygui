@@ -1,5 +1,5 @@
+import warnings
 import uuid
-
 from enum import Enum
 from typing import Any, Callable
 
@@ -14,7 +14,7 @@ class EventType:
     APP_RENDER: str = "app.render"
     APP_WINDOW_CLOSE: str = "app.window_close"
 
-    WINDOW_WINDOW_CLOSED: str = "window.closed"
+    WINDOW_DESTROY: str = "window.destroy"
 
 
 class EventOrigin(Enum):
@@ -50,19 +50,27 @@ class EventListener:
         condition: Callable[[Event], bool] | None,
         oneshot: bool,
         disconnect: Callable[[EventListener]],
+        instance: Any,
     ) -> None:
         self.callback: Callable[[Event]] = callback
         self.condition: Callable[[Event], bool] | None = condition
         self.type: str = type
         self.oneshot: bool = oneshot
         self._disconnect: Callable[[EventListener]] = disconnect
+        self.instance: Any = instance
 
         self.uuid: uuid.UUID = uuid.uuid4()
         self.valid: bool = True
 
+    def __str__(self) -> str:
+        return f"<compygui.events.EventListener for {self.type} at {id(self)}: callback={self.callback} condition={self.condition} instance={self.instance} oneshot={self.oneshot} uuid={self.uuid} valid={self.valid}>"
+
     def disconnect(self) -> None:
-        self.valid = False
+        if self.oneshot and not self.valid:
+            return
+
         self._disconnect(self)
+        self.valid = False
 
 
 class EventQueue:
@@ -70,8 +78,9 @@ class EventQueue:
         self.events: list[Event] = []
         self._listeners: list[EventListener] = []
 
-    def listen(
+    def connect(
         self,
+        instance: Any,
         callback: Callable[[Event]],
         for_event: str,
         condition: Callable[[Event], bool] | None = None,
@@ -83,7 +92,8 @@ class EventQueue:
             type=for_event,
             condition=condition,
             oneshot=oneshot,
-            disconnect=lambda x: self.disconnect(x),
+            disconnect=self.disconnect,
+            instance=instance,
         )
         self._listeners.append(listener)
         return listener
@@ -100,7 +110,7 @@ class EventQueue:
             )
 
         event: Event = Event(evtype, *args, **evdata, event_origin=event_origin)
-        self.events.append(event)  # TODO: Make events expire
+        self.events.append(event)
 
         for listener in self._listeners:
             if listener.type == event.type:
@@ -129,6 +139,9 @@ class EventQueue:
 
         if listener is None:
             raise ValueError(f"Unable to find listener from UUID {listener_or_uuid}")
+
+        if not listener.valid and not listener in self._listeners:
+            raise ValueError(f"Listener {listener} has already been disconnected")
 
         self._listeners.remove(listener)
 
