@@ -7,12 +7,19 @@ for important license information.
 https://github.com/FluffyKn1ght/compygui
 """
 
+"""Blank Window
+
+Creates a completely blank window. Good template/boilerplate project.
+"""
+
 from compygui import ComPyGUIApp, Window
 from compygui.datatypes.vector2 import IVector2
 from compygui.window import WindowPositionFlags
 
 
 class BlankWindowApp(ComPyGUIApp):
+    """Main app class"""
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
