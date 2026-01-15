@@ -5,26 +5,16 @@ import math
 
 @dataclass
 class IVector2:
-    """An integer 2D vector."""
+    """An integer 2D vector
+
+    X: The X axis
+    Y: The Y axis
+    """
 
     def __init__(self, x: int, y: int) -> None:
         super().__init__()
         self.x: int = x
         self.y: int = y
-
-    def __or__(self, value: Any) -> IVector2:
-        if type(value) is IVector2:
-            return IVector2(
-                self.x if self.x != 0 else value.x, self.y if self.y != 0 else value.y
-            )
-        else:
-            raise ValueError(
-                f"Can't {'"|"'} an IVector2 and {type(value).__name__} together "
-            )
-
-    def floaty(self) -> Vector2:
-        """Returns a Vector2() generated with the values of this IVector2()"""
-        return Vector2(self.x, self.y)
 
     @staticmethod
     def ZERO() -> IVector2:
@@ -56,13 +46,26 @@ class IVector2:
         """Equivalent to IVector2(1, 0)."""
         return IVector2(1, 0)
 
+    def normalized(self) -> Vector2:
+        """Returns a normalized (length == 1) version of this IVector2() as a Vector2()"""
+        magnitude: float = self.magnitude()
+        return Vector2(float(self.x) / magnitude, float(self.y) / magnitude)
+
+    def magnitude(self) -> float:
+        """Returns the magnitude (length/module) of this IVector2()"""
+        return math.sqrt((self.x**2) + (self.y**2))
+
+    def floaty(self) -> Vector2:
+        """Returns a Vector2() generated with the values of this IVector2()"""
+        return Vector2(self.x, self.y)
+
 
 @dataclass
 class Vector2:
-    """A 2D vector.
+    """A 2D vector
 
-    x: The X axis.
-    y: The Y axis.
+    x: The X axis
+    y: The Y axis
     """
 
     def __init__(self, x: float, y: float) -> None:
@@ -70,15 +73,9 @@ class Vector2:
         self.x: float = x
         self.y: float = y
 
-    def __or__(self, value: Any) -> Vector2:
-        if type(value) is Vector2:
-            return Vector2(
-                self.x if self.x != 0 else value.x, self.y if self.y != 0 else value.y
-            )
-        else:
-            raise ValueError(
-                f"Can't {'"|"'} a Vector2 and {type(value).__name__} together "
-            )
+    def magnitude(self) -> float:
+        """Returns the magnitude (length/module) of this Vector2()"""
+        return math.sqrt((self.x**2) + (self.y**2))
 
     @staticmethod
     def ZERO() -> Vector2:
@@ -124,4 +121,5 @@ class Vector2:
 
     def normalized(self) -> Vector2:
         """Returns a normalized (length == 1) version of this Vector2()"""
-        return Vector2(self.x / self.x, self.y / self.y)
+        magnitude: float = self.magnitude()
+        return Vector2(self.x / magnitude, self.y / magnitude)
