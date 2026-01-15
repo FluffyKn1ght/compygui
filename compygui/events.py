@@ -42,7 +42,7 @@ class EventQueue:
         self._listeners: list[dict[str, Any]] = []
 
     def listen(
-        self, for_event: str, condition: Callable[[Event], bool] | None
+        self, for_event: str, condition: Callable[[Event], bool] | None = None
     ) -> Callable:
         def register_listener(func: Callable) -> Callable:
             def listen_wrapper(event: Event, *args, **kwargs) -> Any:
