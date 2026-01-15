@@ -8,7 +8,6 @@ https://github.com/FluffyKn1ght/compygui
 
 from .compygui import *
 from .errors import *
-from .decorators import *
 from .window import *
 from .misc import *
 from .viewport import *
