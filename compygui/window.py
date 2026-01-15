@@ -147,7 +147,10 @@ class Window:
 
     def _render(self) -> None:
         with SDLErrorDetector(error_info="Error during window re-render"):
-            surface: SDL_Surface = SDL_GetWindowSurface(self._window)
+            if not self.viewport._surface:
+                return
+
+            surface: SDL_Surface = self.viewport._surface
             tex: SDL_Texture = SDL_CreateTextureFromSurface(self._renderer, surface)
             SDL_RenderClear(self._renderer)
             SDL_RenderCopy(self._renderer, tex, None, None)
