@@ -126,6 +126,12 @@ class GUIComponent(Component):
     def calculate(self, delta: int) -> IVector2:
         return IVector2.ZERO()
 
+    def get_viewport_size(self) -> IVector2:
+        if isinstance(self.parent, GUIComponent):
+            return self.parent.get_viewport_size()
+        else:
+            return self.parent.size  # type: ignore
+
     def destroy(self) -> None:
         self.tree_events.fire(EventType.GUI_DESTROY, event_origin=self)
         self.render_listener.disconnect()
