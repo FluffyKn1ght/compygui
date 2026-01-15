@@ -88,7 +88,9 @@ class EventQueue:
         self._listeners.append(listener)
         return listener
 
-    def fire(self, evtype: str, *args, **evdata) -> None:
+    def fire(
+        self, evtype: str, *args, event_origin: Component | EventOrigin, **evdata
+    ) -> None:
         if len(self.events) >= 1024:
             raise OverflowError("Event queue size limit reached (1024 events)")
 
@@ -97,7 +99,7 @@ class EventQueue:
                 "Event listener array size limit reached (1024 event listeners)"
             )
 
-        event: Event = Event(evtype, *args, **evdata)
+        event: Event = Event(evtype, *args, **evdata, event_origin=event_origin)
         self.events.append(event)  # TODO: Make events expire
 
         for listener in self._listeners:
@@ -129,3 +131,10 @@ class EventQueue:
             raise ValueError(f"Unable to find listener from UUID {listener_or_uuid}")
 
         self._listeners.remove(listener)
+
+    def tick(self) -> None:
+        for event in self.events:
+            event.age += 1
+
+            if event.age >= event.expires_in:
+                self.events.remove(event)

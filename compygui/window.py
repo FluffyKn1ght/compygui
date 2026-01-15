@@ -31,6 +31,7 @@ from sdl2.video import (
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_UNDEFINED,
     SDL_DestroyWindow,
+    SDL_GetWindowID,
     SDL_GetWindowSurface,
     SDL_ShowWindow,
     SDL_Window,
@@ -133,10 +134,10 @@ class Window:
         except SDLError as e:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
 
-        self.app_events.listen(EventType.APP_WINDOW_CLOSE, oneshot=True)(
-            self.on_window_close
+        self.app_events.listen(
+            self.on_window_close, EventType.APP_WINDOW_CLOSE, oneshot=True
         )
-        self.app_events.listen(EventType.APP_RENDER)(self.on_render)
+        self.app_events.listen(self.on_render, EventType.APP_RENDER)
 
     def __del__(self) -> None:
         self.destroy()
@@ -151,17 +152,20 @@ class Window:
 
     def on_window_close(self, event: Event) -> None:
         """Event handler for "window.window_closed" (EventType.WINDOW_WINDOW_CLOSED)"""
-        self.hide()
+        if event.data["window_id"] == SDL_GetWindowID(self._window):
+            self.hide()
 
-        self.app_events.fire(
-            EventType.WINDOW_WINDOW_CLOSED,
-            event_origin=EventOrigin.WINDOW,
-            window=self,
-        )
+            self.app_events.fire(
+                EventType.WINDOW_WINDOW_CLOSED,
+                event_origin=EventOrigin.WINDOW,
+                window=self,
+            )
 
-        self.destroy()
+            self.destroy()
 
     def on_render(self, event: Event) -> None:
+        self.event_queue.tick()
+
         self.event_queue.fire(EventType.G_RENDER, event_origin=EventOrigin.WINDOW)
 
         self._render()

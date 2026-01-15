@@ -98,25 +98,20 @@ NOTICE and LICENSE files for more information
                     if event.window.event == SDL_WINDOWEVENT_CLOSE:
                         self.event_queue.fire(
                             EventType.APP_WINDOW_CLOSE,
-                            EventOrigin.APP,
-                            event.window.windowID,
+                            event_origin=EventOrigin.APP,
+                            window_id=event.window.windowID,
                         )
 
             curtime: float = time.thread_time()
             self.event_queue.fire(
                 EventType.APP_RENDER,
-                EventOrigin.APP,
+                event_origin=EventOrigin.APP,
                 delta=curtime - self._last_frame_time,
             )
-            print(curtime - self._last_frame_time)
-
-            if (curtime - self._last_frame_time) < (1.0 / self.framerate):
-                print(
-                    f"waiting for {(1.0 / self.framerate) - (curtime - self._last_frame_time)}"
-                )
-                time.sleep((1.0 / self.framerate) - (curtime - self._last_frame_time))
 
             self._last_frame_time = curtime
+
+            self.event_queue.tick()
 
     def _get_window_by_id(self, id: int) -> Window | None:
         """Gets a Window from a window ID
@@ -155,7 +150,9 @@ NOTICE and LICENSE files for more information
         idx: int = len(self.windows) - 1
         self.windows.append(window)
 
-        self.event_queue.listen(EventType.WINDOW_WINDOW_CLOSED)(self.on_window_closed)
+        self.event_queue.listen(
+            self.on_window_closed, EventType.WINDOW_WINDOW_CLOSED, oneshot=True
+        )
 
     def on_window_closed(self, event: Event) -> None:
         if event.data["window"] == event.data["window"]:
