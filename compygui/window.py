@@ -28,7 +28,8 @@ from sdl2.video import (
     SDL_Window,
 )
 from compygui.component import Component
-from compygui.datatypes import RGBAMask, IVector2
+from compygui.datatypes.vector2 import IVector2
+from compygui.datatypes.rgba import RGBAMask
 from compygui.errors import SDLError, SDLErrorDetector
 from compygui.events import Event, EventOrigin, EventQueue, EventType
 from compygui.viewport import Viewport

@@ -8,7 +8,7 @@ https://github.com/FluffyKn1ght/compygui
 """
 
 from compygui import ComPyGUIApp, Window
-from compygui.datatypes import IVector2
+from compygui.datatypes.vector2 import IVector2
 from compygui.window import WindowPositionFlags
 
 

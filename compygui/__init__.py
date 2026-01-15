@@ -8,7 +8,11 @@ https://github.com/FluffyKn1ght/compygui
 
 from .compygui import *
 from .errors import *
-from .datatypes import *
 from .decorators import *
 from .window import *
 from .misc import *
+from .viewport import *
+from .events import *
+
+from .datatypes.vector2 import *
+from .datatypes.rect2 import *

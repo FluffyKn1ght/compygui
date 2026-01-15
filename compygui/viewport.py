@@ -7,7 +7,9 @@ from sdl2.surface import (
     SDL_Surface,
 )
 from compygui.component import Component
-from compygui.datatypes import IRect2, RGBAColor, IVector2
+from compygui.datatypes.rect2 import IRect2
+from compygui.datatypes.vector2 import IVector2
+from compygui.datatypes.rgba import RGBAColor, RGBAMask
 from compygui.errors import ComPyGUIError, SDLErrorDetector
 from compygui.events import EventQueue
 
