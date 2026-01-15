@@ -103,6 +103,8 @@ class Viewport(BaseViewport):
         self.bg_color: RGBAColor = bg_color
 
     def render(self) -> None:
+        """Renders the contents of this Viewport() to its _surface"""
+
         if self.destroyed:
             return
 

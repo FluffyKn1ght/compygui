@@ -27,7 +27,12 @@ from compygui.window import Window
 
 
 class ComPyGUIApp(ABC):
-    """Abstract base class for a ComPyGUI app"""
+    """Abstract base class for a ComPyGUI app
+
+    title: The name of the app
+    silence_license_info: If True, the "ComPyGUI is under GPL v3" notice won't be printed
+    framerate: The target rendering framerate
+    """
 
     NOTICE: str = """
 ComPyGUI - A competent GUI library for Python
@@ -144,7 +149,7 @@ NOTICE and LICENSE files for more information
         return win
 
     def register_window(self, window: Window) -> None:
-        """Registers a window to this app
+        """Registers a Window() to this app
 
         window: The Window() to register
         """
@@ -159,15 +164,16 @@ NOTICE and LICENSE files for more information
             self.running = False
 
     def run(self) -> None:
-        """Launches the app."""
+        """Launches the app"""
         if self.running:
             raise ComPyGUIError("App is already running")
+
         self.setup()
         self.running = True
         self._mainloop()
 
     def quit(self) -> None:
-        """Clean up and close the app"""
+        """Cleans up and closes the app"""
         if self.destroyed:
             return
 

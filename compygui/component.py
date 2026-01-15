@@ -1,4 +1,13 @@
-from abc import ABC, abstractmethod
+"""
+ComPyGUI - A competent Python GUI library
+  Copyright (C) 2026  FluffyKn1ght
+
+Please see the NOTICE file or compygui.compygui.ComPyGuiApp.NOTICE
+for important license information.
+https://github.com/FluffyKn1ght/compygui
+"""
+
+from abc import ABC
 
 
 class Component(ABC):
@@ -61,5 +70,5 @@ class Component(ABC):
                 self._parent.children.append(self)
 
     def destroy(self) -> None:
-        """Clean up and delete this component"""
+        """Cleans up and deletes the Component()"""
         pass

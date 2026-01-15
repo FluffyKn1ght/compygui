@@ -1,12 +1,26 @@
-import warnings
+"""
+ComPyGUI - A competent Python GUI library
+  Copyright (C) 2026  FluffyKn1ght
+
+Please see the NOTICE file or compygui.compygui.ComPyGuiApp.NOTICE
+for important license information.
+https://github.com/FluffyKn1ght/compygui
+"""
+
 import uuid
 from enum import Enum
 from typing import Any, Callable
 
 from compygui.component import Component
+from compygui.errors import ComPyGUIError
 
 
 class EventType:
+    """Contains all Event() type strings in an easy-to-access place
+
+    Should not be instantiated (will raise an error).
+    """
+
     UNKNOWN: str = "?"
 
     G_RENDER: str = "render"
@@ -16,8 +30,13 @@ class EventType:
 
     WINDOW_DESTROY: str = "window.destroy"
 
+    def __init__(self) -> None:
+        raise NotImplemented("Can't instantiate EventType")
+
 
 class EventOrigin(Enum):
+    """Where did this Event() come from, if not from a Component()"""
+
     UNKNOWN = 0
     WINDOW = 1
     APP = 2
@@ -25,6 +44,19 @@ class EventOrigin(Enum):
 
 
 class Event:
+    """An application/component event
+
+    Events are meant to solve the problem of calling-something-from-
+    -somewhere-completely-unrelated, and also to allow (very limited)
+    asyncrhonization. Events have a type string, origin (Component() or not),
+    expiry time and age, and user-addable data (arguments).
+
+    type: The type of the event
+    event_expires_in: How many EventQueue() ticks does this event last
+    event_origin: The origin of the event
+    **evdata: Event data, stored in the Event().data property as a dict[str, Any]
+    """
+
     def __init__(
         self,
         type: str,
@@ -42,19 +74,34 @@ class Event:
 
 
 class EventListener:
+    """A structure that defines an event listener, as well as the rules and status of it
+
+    Event listeners are more complicated than they seem: they have a
+    target type, a callback, a condition/check function, a link to the
+    class instance which created them and much more. This allows for
+    complex, flexible event systems (including user events).
+
+    callback: The function that will be called with an Event() once that Event() is fired
+    type: The type of Event()s that this EventListener() listens to
+    condition: An optional function that accepts an Event() and returns whether that event should be processed by the main callback
+    oneshot: If True, then the EventListener() will self-destruct after one event
+    disconnect: Which function to call then disconnecting this EventListener()
+    instance: The class instance this EventListener() is linked to
+    """
+
     def __init__(
         self,
         *args,
         callback: Callable[[Event]],
         type: str,
-        condition: Callable[[Event], bool] | None,
+        condition: Callable[[Event], bool] | None = None,
         oneshot: bool,
         disconnect: Callable[[EventListener]],
         instance: Any,
     ) -> None:
         self.callback: Callable[[Event]] = callback
-        self.condition: Callable[[Event], bool] | None = condition
         self.type: str = type
+        self.condition: Callable[[Event], bool] | None = condition
         self.oneshot: bool = oneshot
         self._disconnect: Callable[[EventListener]] = disconnect
         self.instance: Any = instance
@@ -63,9 +110,11 @@ class EventListener:
         self.valid: bool = True
 
     def __str__(self) -> str:
-        return f"<compygui.events.EventListener for {self.type} at {hex(id(self))}: callback={self.callback} condition={self.condition} instance={self.instance} oneshot={self.oneshot} uuid={self.uuid} valid={self.valid}>"
+        return f"<compygui.events.EventListener for {self.type} at {hex(id(self))}: callback={self.callback} instance={self.instance} oneshot={self.oneshot} uuid={self.uuid} valid={self.valid}>"
 
     def disconnect(self) -> None:
+        """Disconnects this EventListener(), making it no longer react to any events"""
+
         if self.oneshot and not self.valid:
             return
 
@@ -74,6 +123,8 @@ class EventListener:
 
 
 class EventQueue:
+    """An event queue that handles listener connection/disconnection"""
+
     def __init__(self):
         self.events: list[Event] = []
         self._listeners: list[EventListener] = []
@@ -83,10 +134,20 @@ class EventQueue:
         instance: Any,
         callback: Callable[[Event]],
         for_event: str,
-        condition: Callable[[Event], bool] | None = None,
         *args,
+        condition: Callable[[Event], bool] | None = None,
         oneshot: bool = False,
     ) -> EventListener:
+        """Creates and connects an EventListener() to this EventQueue()
+
+        instance: The class instance the EventListener() will be linked to
+        callback: The function that will be called with an Event() once that Event() is fired
+        for_event: The type of Event()s that this EventListener() will listen to
+        condition: An optional function that accepts an Event() and returns whether that event
+            should be processed by the main callback
+        oneshot: If True, then the EventListener() will self-destruct after one event
+        """
+
         listener: EventListener = EventListener(
             callback=callback,
             type=for_event,
@@ -101,6 +162,14 @@ class EventQueue:
     def fire(
         self, evtype: str, *args, event_origin: Component | EventOrigin, **evdata
     ) -> None:
+        """Creates an "fires" an event, triggering the appropriate listeners and
+        adding it to the event queue.
+
+        evtype: The type of the event to fire
+        event_origin: The origin of the event
+        **evdata: Any other kwargs that will get interpreted as event data (arguments)
+        """
+
         if len(self.events) >= 1024:
             raise OverflowError("Event queue size limit reached (1024 events)")
 
@@ -114,12 +183,12 @@ class EventQueue:
 
         for listener in self._listeners:
             if listener.type == event.type:
-                if listener.condition != None:
+                if listener.condition:
                     if not listener.condition(event):
                         continue
 
                 if not listener.valid:
-                    raise ValueError(
+                    raise ComPyGUIError(
                         f"[ComPyGUI BUG] Invalid (disconnected) listener in EventQueue()._listeners at index {self._listeners.index(listener)}"
                     )
 
@@ -129,6 +198,8 @@ class EventQueue:
                     listener.disconnect()
 
     def disconnect(self, listener_or_uuid: EventListener | uuid.UUID) -> None:
+        """Disconnects an EventListener() from this EventQueue()"""
+
         listener: EventListener | None = None
         if type(listener_or_uuid) is EventListener:
             listener = listener_or_uuid
@@ -146,6 +217,8 @@ class EventQueue:
         self._listeners.remove(listener)
 
     def tick(self) -> None:
+        """Updates the ages of all events in the queue and clears out the expired oness"""
+
         for event in self.events:
             event.age += 1
 

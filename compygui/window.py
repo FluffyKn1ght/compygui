@@ -13,7 +13,6 @@ from sdl2 import (
     SDL_CreateWindow,
     SDL_HideWindow,
     SDL_WindowFlags,
-    error,
 )
 from sdl2.render import (
     SDL_RENDERER_ACCELERATED,
@@ -33,11 +32,9 @@ from sdl2.video import (
     SDL_WINDOWPOS_UNDEFINED,
     SDL_DestroyWindow,
     SDL_GetWindowID,
-    SDL_GetWindowSurface,
     SDL_ShowWindow,
     SDL_Window,
 )
-from compygui.component import Component
 from compygui.datatypes.vector2 import IVector2
 from compygui.datatypes.rgba import RGBAMask
 from compygui.errors import SDLError, SDLErrorDetector
@@ -167,20 +164,26 @@ class Window:
             SDL_RenderPresent(self._renderer)
 
     def on_window_close(self, event: Event) -> None:
-        """Event handler for "window.window_closed" (EventType.WINDOW_WINDOW_CLOSED)"""
+        """Event handler for "app.window_close" (EventType.APP_WINDOW_CLOSE)"""
         if event.data["window_id"] == SDL_GetWindowID(self._window):
             self.hide()
             self.destroy()
 
     def show(self) -> None:
+        """Shows the window on the screen"""
+
         SDL_ShowWindow(self._window)
         self.shown = True
 
     def hide(self) -> None:
+        """Hides the window from the screen"""
+
         SDL_HideWindow(self._window)
         self.shown = False
 
     def destroy(self) -> None:
+        """Cleans up and deletes the Window()"""
+
         if self.destroyed:
             return
         self.destroyed = True

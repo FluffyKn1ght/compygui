@@ -80,17 +80,22 @@ class RGBAColor:
 
     @staticmethod
     def YELLOW() -> RGBAColor:
+        """Equivalent to RGBAColor(r=255, g=255, b=0, a=255)"""
         return RGBAColor(r=255, g=255, b=0, a=255)
 
     @staticmethod
     def AQUA() -> RGBAColor:
+        """Equivalent to RGBAColor(r=0, g=255, b=255, a=255)"""
         return RGBAColor(r=0, g=255, b=0, a=255)
 
     @staticmethod
     def PINK() -> RGBAColor:
+        """Equivalent to RGBAColor(r=255, g=0, b=255, a=255)"""
         return RGBAColor(r=255, g=0, b=255, a=255)
 
     def as_int(self, bits_per_channel: int) -> int:
+        """Return the RGBAColor as an integer, with adjustable bit depth"""
+
         if bits_per_channel > 8:
             raise ValueError("bits_per_channel must be in range(0, 8) (0-7)")
 
