@@ -19,6 +19,7 @@ from sdl2.render import (
     SDL_CreateRenderer,
     SDL_CreateTextureFromSurface,
     SDL_DestroyRenderer,
+    SDL_DestroyTexture,
     SDL_RenderClear,
     SDL_RenderCopy,
     SDL_RenderPresent,
@@ -86,7 +87,7 @@ class Window:
 
     def __init__(
         self,
-        *args,
+        *vp_children,
         title="Window",
         position: IVector2 | WindowPositionFlags,
         size: IVector2,
@@ -119,15 +120,14 @@ class Window:
         with SDLErrorDetector(error_info="Failed to create renderer for window"):
             self._renderer = SDL_CreateRenderer(self._window, -1, renderer_flags)
 
-        self.event_queue: EventQueue = EventQueue()
         self.app_events: EventQueue = app_event_queue
 
         try:
             self.viewport = Viewport(
+                vp_children,
                 size=size,
                 mask=vp_mask,
                 bit_depth=vp_bit_depth,
-                window_events=self.event_queue,
             )
         except SDLError as e:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
@@ -143,25 +143,18 @@ class Window:
         self.destroy()
 
     def _render(self, event: Event) -> None:
-        self.event_queue.tick()
-
-        self.event_queue.fire(EventType.G_RENDER, event_origin=EventOrigin.WINDOW)
-
         with SDLErrorDetector(error_info="Error during window re-render"):
             if not self.viewport._surface:
                 return
 
-            self.event_queue.fire(
-                EventType.G_RENDER,
-                event_origin=EventOrigin.WINDOW,
-                delta=event.data["delta"],
-            )
+            self.viewport.render(event.data["delta"])
 
             surface: SDL_Surface = self.viewport._surface
             tex: SDL_Texture = SDL_CreateTextureFromSurface(self._renderer, surface)
             SDL_RenderClear(self._renderer)
             SDL_RenderCopy(self._renderer, tex, None, None)
             SDL_RenderPresent(self._renderer)
+            SDL_DestroyTexture(tex)
 
     def on_window_close(self, event: Event) -> None:
         """Event handler for "app.window_close" (EventType.APP_WINDOW_CLOSE)"""

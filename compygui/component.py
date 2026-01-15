@@ -29,7 +29,8 @@ class Component(ABC):
         self._children: list[Component] = []
 
         for child in children:
-            child.reparent(self)
+            if type(child) is Component:
+                child.reparent(self)
 
     def __del__(self) -> None:
         self.destroy()
@@ -54,8 +55,15 @@ class Component(ABC):
             "Unable to set Component().children directly - use Component.reparent() on the child component instead"
         )
 
+    def _add_child(self, child: Component) -> None:
+        self._children.append(child)
+        self.add_child(child)
+
+    def add_child(self, child: Component) -> None:
+        pass
+
     def reparent(self, to: Component | None) -> None:
-        """Reparent another Component() to this Component()"""
+        """Reparent this Component() to another Component()"""
 
         # TODO: Events
         if self._parent:
@@ -65,9 +73,9 @@ class Component(ABC):
                 pass
 
         self._parent = to
+
         if self._parent:
-            if self in self._parent.children:
-                self._parent.children.append(self)
+            self._parent._add_child(self)
 
     def destroy(self) -> None:
         """Cleans up and deletes the Component()"""

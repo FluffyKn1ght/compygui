@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from sdl2.surface import (
     SDL_CreateRGBSurface,
     SDL_FillRect,
@@ -12,6 +11,7 @@ from compygui.datatypes.vector2 import IVector2
 from compygui.datatypes.rgba import RGBAColor, RGBAMask
 from compygui.errors import ComPyGUIError, SDLErrorDetector
 from compygui.events import Event, EventListener, EventQueue, EventType
+from compygui.guicomponent import GUIComponent
 
 
 class BaseViewport(Component, ABC):
@@ -32,7 +32,6 @@ class BaseViewport(Component, ABC):
         size: IVector2,
         mask: RGBAMask = RGBAMask.RGBA(),
         bit_depth: int = 32,
-        window_events: EventQueue,
         **props
     ) -> None:
         super().__init__(*children, **props)
@@ -42,16 +41,7 @@ class BaseViewport(Component, ABC):
         self.bit_depth: int = bit_depth
         self.mask: RGBAMask = mask
 
-        self.window_events: EventQueue = window_events
-
-        self._render_listener: EventListener = self.window_events.connect(
-            self, self._on_render, EventType.G_RENDER
-        )
-
         self.recreate_surface()
-
-    def _on_render(self, event: Event) -> None:
-        self.render()
 
     def recreate_surface(self) -> None:
         """(re-)Create the Viewport()'s surface to match class properties"""
@@ -79,12 +69,11 @@ class BaseViewport(Component, ABC):
         """Clean up and delete the BaseViewport()"""
         if self._surface:
             SDL_FreeSurface(self._surface)
-        self._render_listener.disconnect()
         super().destroy()
 
     @abstractmethod
-    def render(self) -> None:
-        """Re-render the BaseViewport() and all of its GUIComponent()s"""
+    def render(self, delta: int) -> None:
+        """Re-render the BaseViewport() and all of its children"""
         pass
 
 
@@ -101,8 +90,13 @@ class Viewport(BaseViewport):
         super().__init__(*children, **props)
 
         self.bg_color: RGBAColor = bg_color
+        self.tree_events: EventQueue = EventQueue()
 
-    def render(self) -> None:
+    def add_child(self, child: Component) -> None:
+        if isinstance(child, GUIComponent):
+            child._setup(self.tree_events)
+
+    def render(self, delta: int) -> None:
         """Renders the contents of this Viewport() to its _surface"""
 
         if self.destroyed:
@@ -111,9 +105,15 @@ class Viewport(BaseViewport):
         if not self._surface:
             raise ComPyGUIError("Viewport() doesn't have a _surface")
 
+        self.tree_events.fire(EventType.G_RENDER, event_origin=self, delta=delta)
+
         with SDLErrorDetector("Viewport rendering failed"):
             SDL_FillRect(
                 self._surface,
                 self.get_rect().as_sdl_rect(),
                 self.bg_color.as_int(8),
             )
+
+            for child in self.children:
+                if isinstance(child, GUIComponent):
+                    child.render(delta, self._surface)

@@ -30,6 +30,10 @@ class EventType:
 
     WINDOW_DESTROY: str = "window.destroy"
 
+    GUI_CREATED: str = "gui.created"
+    GUI_DESTROY: str = "gui.destroy"
+    GUI_SIZE_CHANGED: str = "gui.size_changed"
+
     def __init__(self) -> None:
         raise NotImplemented("Can't instantiate EventType")
 
@@ -201,9 +205,9 @@ class EventQueue:
         """Disconnects an EventListener() from this EventQueue()"""
 
         listener: EventListener | None = None
-        if type(listener_or_uuid) is EventListener:
+        if isinstance(listener_or_uuid, EventListener):
             listener = listener_or_uuid
-        elif type(listener_or_uuid) is uuid.UUID:
+        elif isinstance(listener_or_uuid, uuid.UUID):
             for lis in self._listeners:
                 if lis.uuid == listener_or_uuid:
                     listener = lis

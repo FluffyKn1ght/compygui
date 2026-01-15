@@ -12,6 +12,7 @@ from .window import *
 from .misc import *
 from .viewport import *
 from .events import *
+from .guicomponent import *
 
 from .datatypes.vector2 import *
 from .datatypes.rect2 import *
