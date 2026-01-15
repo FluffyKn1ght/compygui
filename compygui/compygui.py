@@ -153,11 +153,10 @@ NOTICE and LICENSE files for more information
         self.windows.append(window)
 
     def on_window_destroy(self, event: Event) -> None:
-        if event.data["window"] == event.data["window"]:
-            self.windows.remove(event.data["window"])
+        self.windows.remove(event.data["window"])
 
-            if not self.windows:
-                self.running = False
+        if not self.windows:
+            self.running = False
 
     def run(self) -> None:
         """Launches the app."""

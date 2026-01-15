@@ -63,7 +63,7 @@ class EventListener:
         self.valid: bool = True
 
     def __str__(self) -> str:
-        return f"<compygui.events.EventListener for {self.type} at {id(self)}: callback={self.callback} condition={self.condition} instance={self.instance} oneshot={self.oneshot} uuid={self.uuid} valid={self.valid}>"
+        return f"<compygui.events.EventListener for {self.type} at {hex(id(self))}: callback={self.callback} condition={self.condition} instance={self.instance} oneshot={self.oneshot} uuid={self.uuid} valid={self.valid}>"
 
     def disconnect(self) -> None:
         if self.oneshot and not self.valid:

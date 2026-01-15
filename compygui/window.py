@@ -95,7 +95,7 @@ class Window:
         size: IVector2,
         window_flags: int = SDL_WINDOW_RESIZABLE,
         renderer_flags: int = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC,
-        vp_bit_depth: int = 8,
+        vp_bit_depth: int = 32,
         vp_mask: RGBAMask = RGBAMask.RGBA(),
         app_event_queue: EventQueue,
     ) -> None:
@@ -135,10 +135,10 @@ class Window:
         except SDLError as e:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
 
-        self.window_close_listener: EventListener = self.app_events.connect(
+        self._window_close_listener: EventListener = self.app_events.connect(
             self, self.on_window_close, EventType.APP_WINDOW_CLOSE, oneshot=True
         )
-        self.render_listener: EventListener = self.app_events.connect(
+        self._render_listener: EventListener = self.app_events.connect(
             self, self.on_render, EventType.APP_RENDER
         )
 
@@ -149,6 +149,8 @@ class Window:
         with SDLErrorDetector(error_info="Error during window re-render"):
             if not self.viewport._surface:
                 return
+
+            self.event_queue.fire(EventType.G_RENDER, event_origin=EventOrigin.WINDOW)
 
             surface: SDL_Surface = self.viewport._surface
             tex: SDL_Texture = SDL_CreateTextureFromSurface(self._renderer, surface)
@@ -188,8 +190,8 @@ class Window:
             window=self,
         )
 
-        self.render_listener.disconnect()
-        self.window_close_listener.disconnect()
+        self._render_listener.disconnect()
+        self._window_close_listener.disconnect()
 
         SDL_DestroyRenderer(self._renderer)
         SDL_DestroyWindow(self._window)

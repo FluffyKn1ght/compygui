@@ -78,7 +78,17 @@ class RGBAColor:
         """
         return RGBAColor(r=0, g=0, b=0, a=0)
 
-    # TODO: Add more colors
+    @staticmethod
+    def YELLOW() -> RGBAColor:
+        return RGBAColor(r=255, g=255, b=0, a=255)
+
+    @staticmethod
+    def AQUA() -> RGBAColor:
+        return RGBAColor(r=0, g=255, b=0, a=255)
+
+    @staticmethod
+    def PINK() -> RGBAColor:
+        return RGBAColor(r=255, g=0, b=255, a=255)
 
     def as_int(self, bits_per_channel: int) -> int:
         if bits_per_channel > 8:
