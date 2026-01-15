@@ -88,12 +88,22 @@ NOTICE and LICENSE files for more information
                 SDL_PollEvent(event)
 
                 if event.type == SDL_WINDOWEVENT:
-                    for window in self.windows:
-                        if SDL_GetWindowID(window._window) == event.window.windowID:
-                            window._handle_window_event(
-                                event.window
-                            )  # TODO: Replace w/ app event
-                            break
+                    if event.window.event == SDL_WINDOWEVENT_CLOSE:
+                        self.event_queue.fire(
+                            EventType.APP_WINDOW_CLOSE, event.window.windowID
+                        )
+
+    def _get_window_by_id(self, id: int) -> Window | None:
+        """Gets a Window from a window ID
+
+        id: The id of the window to return
+        """
+
+        for win in self.windows:
+            if id == SDL_GetWindowID(win._window):
+                return win
+
+        return None
 
     def create_window(self, *args, **kwargs) -> Window:
         """Creates and registers a Window() to this app
@@ -120,13 +130,14 @@ NOTICE and LICENSE files for more information
         idx: int = len(self.windows) - 1
         self.windows.append(window)
 
-        @self.event_queue.listen(EventType.WINDOW_CLOSED)
-        def on_window_close(event: Event) -> None:
-            if event.data["window"] == window:
-                del self.windows[idx]
+        self.event_queue.listen(EventType.WINDOW_WINDOW_CLOSED)(self.on_window_closed)
 
-                if not self.windows:
-                    self.running = False
+    def on_window_closed(self, event: Event) -> None:
+        if event.data["window"] == event.data["window"]:
+            self.windows.remove(event.data["window"])
+
+            if not self.windows:
+                self.running = False
 
     def run(self) -> None:
         """Launches the app."""

@@ -123,25 +123,23 @@ class Window:
         except SDLError as e:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
 
-        @self.event_queue.listen(EventType.WINDOW_CLOSE)
-        def on_window_close(event: Event) -> None:
-            self.hide()
+        self.app_events.listen(EventType.APP_WINDOW_CLOSE)(self.on_window_close)
 
-            self.app_events.fire(
-                EventType.WINDOW_CLOSED,
-                event_oneshot=True,
-                event_origin=EventOrigin.WINDOW,
-                window=self,
-            )
+    def on_window_close(self, event: Event) -> None:
+        """Event handler for "window.window_closed" (EventType.WINDOW_WINDOW_CLOSED)"""
+        self.hide()
 
-            self.destroy()
+        self.app_events.fire(
+            EventType.WINDOW_WINDOW_CLOSED,
+            event_oneshot=True,
+            event_origin=EventOrigin.WINDOW,
+            window=self,
+        )
+
+        self.destroy()
 
     def __del__(self) -> None:
         self.destroy()
-
-    def _handle_window_event(self, event: SDL_WindowEvent) -> None:
-        if event.event == SDL_WINDOWEVENT_CLOSE:
-            self.event_queue.fire(EventType.WINDOW_CLOSE)
 
     def show(self) -> None:
         SDL_ShowWindow(self._window)

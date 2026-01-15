@@ -4,13 +4,12 @@ from typing import Any, Callable
 from compygui.component import Component
 
 
-class EventType(Enum):
-    UNKNOWN = 0
-    WINDOW_CLOSE = 1
-    WINDOW_CLOSED = 2
+class EventType:
+    UNKNOWN: str = "?"
 
-    def __call__(self, *args, **kwargs):
-        pass
+    APP_WINDOW_CLOSE: str = "app.window_close"
+
+    WINDOW_WINDOW_CLOSED: str = "window.closed"
 
 
 class EventOrigin(Enum):
@@ -23,14 +22,14 @@ class EventOrigin(Enum):
 class Event:
     def __init__(
         self,
-        type: EventType,
+        type: str,
         *args,
         event_expires_in: int = 1,
         event_origin: Component | EventOrigin = EventOrigin.UNKNOWN,
         event_oneshot: bool = False,
         **evdata
     ) -> None:
-        self.type: EventType = type
+        self.type: str = type
         self.data: dict[str, Any] = evdata
         self.expires_in: int = event_expires_in
         self.origin: Component | EventOrigin = event_origin
@@ -40,9 +39,9 @@ class Event:
 class EventQueue:
     def __init__(self):
         self.events: list[Event] = []
-        self._listeners: list[dict[str, Callable[[Event]] | EventType]] = []
+        self._listeners: list[dict[str, Any]] = []
 
-    def listen(self, for_event: EventType) -> Callable:
+    def listen(self, for_event: str) -> Callable:
         def listen_deco(func: Callable) -> Callable:
             def listen_wrapper(event: Event, *args, **kwargs) -> Any:
                 return func(event)
@@ -53,7 +52,7 @@ class EventQueue:
 
         return listen_deco
 
-    def fire(self, evtype: EventType, *args, **evdata) -> None:
+    def fire(self, evtype: str, *args, **evdata) -> None:
         event: Event = Event(evtype, *args, **evdata)
         self.events.append(event)  # TODO: Make events expire
 
