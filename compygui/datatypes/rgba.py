@@ -93,6 +93,8 @@ class RGBAColor:
         """Equivalent to RGBAColor(r=255, g=0, b=255, a=255)"""
         return RGBAColor(r=255, g=0, b=255, a=255)
 
+    # TODO: Add hex/hsv stuff
+
     def as_int(self, bits_per_channel: int) -> int:
         """Return the RGBAColor as an integer, with adjustable bit depth"""
 
