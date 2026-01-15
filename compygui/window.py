@@ -19,6 +19,7 @@ from sdl2.render import (
     SDL_RENDERER_ACCELERATED,
     SDL_CreateRenderer,
     SDL_CreateTextureFromSurface,
+    SDL_DestroyRenderer,
     SDL_RenderClear,
     SDL_RenderCopy,
     SDL_RenderPresent,
@@ -181,5 +182,7 @@ class Window:
     def destroy(self) -> None:
         if self.destroyed:
             return
+        self.destroyed = True
 
+        SDL_DestroyRenderer(self._renderer)
         SDL_DestroyWindow(self._window)
