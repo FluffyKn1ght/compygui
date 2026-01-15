@@ -53,6 +53,10 @@ class GUIComponent(Component):
         self.render_listener: EventListener
 
     @property
+    def topleft(self) -> IVector2:
+        return self.position - (self.anchor_point * self.calcd_size).rounded()
+
+    @property
     def calcd_size(self) -> IVector2:
         return self._calculated_size
 

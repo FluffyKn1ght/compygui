@@ -16,6 +16,38 @@ class IVector2:
         self.x: int = x
         self.y: int = y
 
+    def __add__(self, w: Any) -> IVector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to + together an IVector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(self.x + w.x, self.y + w.y).rounded()
+
+    def __sub__(self, w: Any) -> IVector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to - together an IVector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(self.x - w.x, self.y - w.y).rounded()
+
+    def __mul__(self, w: Any) -> IVector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to * together an IVector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(self.x * w.x, self.y * w.y).rounded()
+
+    def __div__(self, w: Any) -> IVector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to / together a IVector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(float(w.x) / self.x, float(w.y) / self.y).rounded()
+
     @staticmethod
     def ZERO() -> IVector2:
         """Equivalent to IVector2(0, 0)."""
@@ -73,9 +105,37 @@ class Vector2:
         self.x: float = x
         self.y: float = y
 
-    def magnitude(self) -> float:
-        """Returns the magnitude (length/module) of this Vector2()"""
-        return math.sqrt((self.x**2) + (self.y**2))
+    def __add__(self, w: Any) -> Vector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to + together a Vector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(self.x + w.x, self.y + w.y)
+
+    def __sub__(self, w: Any) -> Vector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to - together a Vector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(self.x - w.x, self.y - w.y)
+
+    def __mul__(self, w: Any) -> Vector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to * together a Vector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(self.x * w.x, self.y * w.y)
+
+    def __div__(self, w: Any) -> Vector2:
+        if not isinstance(w, Vector2) and not isinstance(w, IVector2):
+            raise ValueError(
+                f"Unable to / together a Vector2 and {w.__class__.__name__}"
+            )
+
+        return Vector2(float(w.x) / self.x, float(w.y) / self.y)
 
     @staticmethod
     def ZERO() -> Vector2:
@@ -123,3 +183,7 @@ class Vector2:
         """Returns a normalized (length == 1) version of this Vector2()"""
         magnitude: float = self.magnitude()
         return Vector2(self.x / magnitude, self.y / magnitude)
+
+    def magnitude(self) -> float:
+        """Returns the magnitude (length/module) of this Vector2()"""
+        return math.sqrt((self.x**2) + (self.y**2))

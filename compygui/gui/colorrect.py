@@ -19,6 +19,6 @@ class GUIColorRectangle(GUIComponent):
     def render(self, delta: int, to: SDL_Surface) -> None:
         SDL_FillRect(
             to,
-            IRect2.from_vectors(self.position, self.calcd_size).as_sdl_rect(),
+            IRect2.from_vectors(self.topleft, self.calcd_size).as_sdl_rect(),
             self.color.as_int(8),
         )

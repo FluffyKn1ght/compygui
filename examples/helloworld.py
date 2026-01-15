@@ -23,7 +23,10 @@ from compygui.window import WindowPositionFlags
 
 def hello_world_layout() -> GUIComponent:
     return GUIColorRectangle(
-        position=IVector2(360, 270), size=IVector2(128, 128), color=RGBAColor.WHITE()
+        position=IVector2(360, 270),
+        size=IVector2(128, 128),
+        color=RGBAColor.WHITE(),
+        anchor_point=Vector2(0.5, 0.5),
     )
 
 
