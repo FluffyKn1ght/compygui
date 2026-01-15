@@ -133,7 +133,9 @@ class Window:
         except SDLError as e:
             raise SDLError(f"Failed to create viewport for window: {e.msg}")
 
-        self.app_events.listen(EventType.APP_WINDOW_CLOSE)(self.on_window_close)
+        self.app_events.listen(EventType.APP_WINDOW_CLOSE, oneshot=True)(
+            self.on_window_close
+        )
         self.app_events.listen(EventType.APP_RENDER)(self.on_render)
 
     def __del__(self) -> None:
@@ -153,7 +155,6 @@ class Window:
 
         self.app_events.fire(
             EventType.WINDOW_WINDOW_CLOSED,
-            event_oneshot=True,
             event_origin=EventOrigin.WINDOW,
             window=self,
         )

@@ -29,14 +29,12 @@ class Event:
         *args,
         event_expires_in: int = 1,
         event_origin: Component | EventOrigin = EventOrigin.UNKNOWN,
-        event_oneshot: bool = False,
         **evdata
     ) -> None:
         self.type: str = type
         self.data: dict[str, Any] = evdata
         self.expires_in: int = event_expires_in
         self.origin: Component | EventOrigin = event_origin
-        self.oneshot: bool = event_oneshot
 
 
 class EventQueue:
@@ -45,14 +43,23 @@ class EventQueue:
         self._listeners: list[dict[str, Any]] = []
 
     def listen(
-        self, for_event: str, condition: Callable[[Event], bool] | None = None
+        self,
+        for_event: str,
+        condition: Callable[[Event], bool] | None = None,
+        *args,
+        oneshot: bool = False
     ) -> Callable:
         def register_listener(func: Callable) -> Callable:
             def listen_wrapper(event: Event, *args, **kwargs) -> Any:
                 return func(event)
 
             self._listeners.append(
-                {"func": func, "type": for_event, "check": condition}
+                {
+                    "func": func,
+                    "type": for_event,
+                    "check": condition,
+                    "oneshot": oneshot,
+                }
             )
 
             return listen_wrapper
@@ -71,8 +78,9 @@ class EventQueue:
         event: Event = Event(evtype, *args, **evdata)
         self.events.append(event)  # TODO: Make events expire
 
-        idx: int = 0
+        idx: int = -1
         for listener in self._listeners:
+            idx += 1
             if listener["type"] == event.type:
                 if listener["check"] != None:
                     if not listener["check"](event):
@@ -80,7 +88,5 @@ class EventQueue:
 
                 listener["func"](event)
 
-                if event.oneshot:
+                if listener["oneshot"]:
                     del self._listeners[idx]
-
-            idx += 1
