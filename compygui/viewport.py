@@ -30,7 +30,7 @@ class BaseViewport(Component, ABC):
         self,
         *children,
         size: IVector2,
-        mask: RGBAColor = RGBAColor.WHITE(),
+        mask: RGBAMask = RGBAMask.RGBA(),
         bit_depth: int = 8,
         bg_color: RGBAColor = RGBAColor.TWHITE(),
         window_events: EventQueue,
@@ -43,7 +43,7 @@ class BaseViewport(Component, ABC):
 
         self.size: IVector2 = size
         self.bit_depth: int = bit_depth
-        self.mask: RGBAColor = mask
+        self.mask: RGBAMask = mask
 
     def recreate_surface(self) -> None:
         """(re-)Create the Viewport()'s surface to match class properties"""
