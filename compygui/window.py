@@ -10,17 +10,13 @@ https://github.com/FluffyKn1ght/compygui
 from sdl2 import (
     SDL_RENDERER_PRESENTVSYNC,
     SDL_WINDOW_RESIZABLE,
-    SDL_WINDOWEVENT,
     SDL_CreateWindow,
     SDL_HideWindow,
     SDL_WindowFlags,
 )
-from sdl2.events import SDL_WindowEvent
 from sdl2.render import SDL_RENDERER_ACCELERATED, SDL_CreateRenderer, SDL_Renderer
 from sdl2.video import (
     SDL_WINDOW_HIDDEN,
-    SDL_WINDOW_SHOWN,
-    SDL_WINDOWEVENT_CLOSE,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_UNDEFINED,
     SDL_DestroyWindow,
