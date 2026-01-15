@@ -139,18 +139,26 @@ class Window:
             self, self.on_window_close, EventType.APP_WINDOW_CLOSE, oneshot=True
         )
         self._render_listener: EventListener = self.app_events.connect(
-            self, self.on_render, EventType.APP_RENDER
+            self, self._render, EventType.APP_RENDER
         )
 
     def __del__(self) -> None:
         self.destroy()
 
-    def _render(self) -> None:
+    def _render(self, event: Event) -> None:
+        self.event_queue.tick()
+
+        self.event_queue.fire(EventType.G_RENDER, event_origin=EventOrigin.WINDOW)
+
         with SDLErrorDetector(error_info="Error during window re-render"):
             if not self.viewport._surface:
                 return
 
-            self.event_queue.fire(EventType.G_RENDER, event_origin=EventOrigin.WINDOW)
+            self.event_queue.fire(
+                EventType.G_RENDER,
+                event_origin=EventOrigin.WINDOW,
+                delta=event.data["delta"],
+            )
 
             surface: SDL_Surface = self.viewport._surface
             tex: SDL_Texture = SDL_CreateTextureFromSurface(self._renderer, surface)
@@ -163,13 +171,6 @@ class Window:
         if event.data["window_id"] == SDL_GetWindowID(self._window):
             self.hide()
             self.destroy()
-
-    def on_render(self, event: Event) -> None:
-        self.event_queue.tick()
-
-        self.event_queue.fire(EventType.G_RENDER, event_origin=EventOrigin.WINDOW)
-
-        self._render()
 
     def show(self) -> None:
         SDL_ShowWindow(self._window)
